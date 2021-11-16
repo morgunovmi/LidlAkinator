@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "tree.h"
+#include "akinator.h"
 
 void PrintElem(void *str) {
     printf("%s\n", (const char *)str);
@@ -9,12 +10,11 @@ void PrintElem(void *str) {
 int main() {
     Tree tree = {};
 
-    TreeCtor(&tree, "Name jeff");
+    TreeCtor(&tree, "Nuffin");
 
-    tree.root->left = CreateNode("Hello jeff");
-    tree.root->right = CreateNode("Hi");
-
-    TreeApplyPrefix(tree.root, PrintElem);
+    while (true) {
+        AkinatorGuess(&tree);
+    }
 
     TreeDtor(&tree);
 }
