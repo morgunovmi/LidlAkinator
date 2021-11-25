@@ -23,6 +23,10 @@ int main() {
                 AkinatorGuess(&tree);
                 break;
 
+            case MODE_DUMP:
+                TreeDump(&tree, "mode_dump");
+                break;
+
             default:
                 PRINT_ERROR("Invalid mode specified\n");
                 TreeDtor(&tree);

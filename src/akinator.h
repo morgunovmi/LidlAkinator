@@ -15,9 +15,10 @@ enum AkinatorError : int {
 
 enum AkinatorMode : int {
     MODE_GUESS = 1,
+    MODE_DUMP = 2,
 };
 
-const uint16_t NUM_MODES = 1;
+const uint16_t NUM_MODES = 2;
 
 uint16_t AkinatorModeSelect();
 

@@ -45,6 +45,8 @@ int TreeCtor_(Tree *tree, const char *val, callInfo info) {
     tree->ctorCallFile = info.file;
     tree->ctorCallLine = info.line; 
 
+    tree->dumpNum = 0;
+
     return 0;
 }
 
@@ -68,12 +70,50 @@ void TreeDtor(Tree *tree) {
     tree->size = SIZE_POISON;
 }
 
-void TreeApplyPrefix(node_t *node, void (*applyf)(void *)) {
-    if (!node) {
-        return;
+int TreeDump_(Tree *tree, const char *reason, callInfo info) {
+    assert(tree);
+    assert(tree->root);
+
+    system("mkdir -p dumps\n");
+
+    char dotFileName[64] = "";
+    sprintf(dotFileName, "dumps/dump%zu.dot", tree->dumpNum);
+
+    FILE *dotFile = fopen(dotFileName, "w");
+    if (!dotFile) {
+        PRINT_ERROR("Error opening file for dump : %s\n", strerror(errno));
+        return ERR_DOT_FILE_OPN;
     }
 
-    applyf(node->data);
-    TreeApplyPrefix(node->left, applyf);
-    TreeApplyPrefix(node->right, applyf);
+    fprintf(dotFile, "digraph tree{\n"
+                    "{\nrankdir=HR;\n"
+                    "node[shape=plaintext];\nedge[color=white]\n"
+                     "\"Tree<%s>[%p]\n dumped from %s() at %s (%d)\n\n", 
+                             "const char *", (void *)tree, info.funcName,
+							 info.file, info.line);
+
+    fprintf(dotFile, "Constructed in %s() at %s (%d)\n"
+                             "Dump reason : %s\"\n}\n",
+                             tree->ctorCallFuncName,
+							 tree->ctorCallFile, tree->ctorCallLine, reason);
+
+    fprintf(dotFile, "data [shape=record, label=\"{ root | size }"
+            "| { %p | %zu }\"];", (void *)tree->root, tree->size);
+
+    fprintf(dotFile, "}\n");
+
+    if (fclose(dotFile) == -1) {
+        PRINT_ERROR("Error closing dot file : %s\n", strerror(errno));
+        return ERR_FILE_CLS;
+    }
+
+    char command[128] = "";
+    sprintf(command, "dot -Tjpg %s -o dumps/dump%zu.jpg", dotFileName, tree->dumpNum);
+    system(command);
+    sprintf(command, "rm %s\n", dotFileName);
+    system(command);
+
+    tree->dumpNum++;
+
+    return 0;
 }

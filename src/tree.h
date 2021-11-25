@@ -33,6 +33,8 @@ struct Tree {
     const char *ctorCallFuncName; /**< Function that called the stack constructor */
     const char *ctorCallFile; /**< File of the constructor call */
     int ctorCallLine; /**< Line of the constructor call */
+
+    size_t dumpNum;
 };
 
 //! Encapsulates info about function call for debug
@@ -44,6 +46,8 @@ struct callInfo {
 
 enum TreeError : int {
     ERR_NOMEM = 1,
+    ERR_DOT_FILE_OPN = 2,
+    ERR_FILE_CLS = 3,
 };
 
 node_t *CreateNode(const char *val);
@@ -56,6 +60,8 @@ void TreeDtor(Tree *tree);
 
 void TreeApplyPrefix(node_t *node, void (*applyf)(void *));
 
+int TreeDump_(Tree *tree, const char *reason, callInfo info);
+
 #define TreeCtor(tree, val)    \
 do {                                           \
     callInfo inf = {};                         \
@@ -63,6 +69,15 @@ do {                                           \
     inf.file = __FILE__;                       \
     inf.line = __LINE__;                       \
     TreeCtor_(tree, val, inf); \
+} while (0)
+
+#define TreeDump(tree, reason)      \
+do {                                           \
+    callInfo inf = {};                         \
+    inf.funcName = __FUNCTION_NAME__;          \
+    inf.file = __FILE__;                       \
+    inf.line = __LINE__;                       \
+    TreeDump_(tree, reason, inf);   \
 } while (0)
 
 #endif

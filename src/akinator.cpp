@@ -11,6 +11,7 @@ uint16_t AkinatorModeSelect() {
     printf("Please choose the mode\n");
     while (true) {
         printf("1: Guess the object\n");
+        printf("2: Dump the database\n");
 
         if (scanf("%hu", &mode) != 1 ||
             mode == 0 || mode > NUM_MODES) {
