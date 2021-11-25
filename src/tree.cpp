@@ -16,14 +16,13 @@ node_t *CreateNode(const char *val) {
         return nullptr;
     }
 
-    const char *str = strdup(val); 
+    node->data = strdup(val); 
 
-    if (!str) {
+    if (!node->data) {
         PRINT_ERROR("Error allocating memory for string : %s\n", strerror(errno));
         return nullptr;
     }
 
-    node->data = (char *)str;
     node->left = nullptr;
     node->right = nullptr;
     return node;
@@ -54,9 +53,9 @@ void FreeSubtree(node_t *node) {
         return;
     }
 
+    free(node->data);
     FreeSubtree(node->left);
     FreeSubtree(node->right);
-    free(node->data);
     free(node);
 }
 
