@@ -1,7 +1,7 @@
-#include <stdio.h>
 #include <assert.h>
 #include <ctype.h>
 #include <string.h>
+#include <errno.h>
 
 #include "akinator.h"
 
@@ -57,6 +57,8 @@ int GetAnswer() {
 }
 
 int AkinatorAddItem(node_t *node) {
+    assert(node);
+
     printf("Can you tell me what you guessed?\n");
 
     char itemToAdd[256] = "";
@@ -129,6 +131,49 @@ int AkinatorGuess(Tree *tree) {
     } else {
         PRINT_ERROR("Got an invalid answer\n");
         return INV_ANSWER;
+    }
+
+    return 0;
+}
+
+int SaveSubtree(FILE *file, node_t *node) {
+    if (!node) {
+        return 0;
+    }
+
+    fprintf(file, "{\n%s\n", node->data);
+
+    if (SaveSubtree(file, node->left) != 0) {
+        return 1;
+    }
+
+    if (SaveSubtree(file, node->right) != 0) {
+        return 1;
+    }
+
+    fprintf(file, "}\n");
+    return 0;
+}
+
+int AkinatorSaveDb(Tree *tree) {
+    assert(tree);
+    assert(tree->root);
+
+    const char *dbname = "db/db.txt";
+    FILE *db = fopen(dbname, "w");
+    
+    if (db == nullptr) {
+        PRINT_ERROR("Error opening database file %s : %s\n", dbname, strerror(errno)); 
+        return ERR_OPN_FILE;
+    }
+
+    if (SaveSubtree(db, tree->root) != 0) {
+        return SAVE_ERR;
+    }
+
+    if (fclose(db) == EOF) {
+        PRINT_ERROR("Error closing database file %s : %s\n", dbname, strerror(errno)); 
+        return ERR_CLS_FILE;
     }
 
     return 0;
