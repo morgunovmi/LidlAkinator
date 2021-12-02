@@ -1,6 +1,7 @@
 #ifndef TREE_H 
 #define TREE_H 
 
+#include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -59,6 +60,8 @@ void FreeSubtree(node_t *node);
 void TreeDtor(Tree *tree);
 
 void TreeApplyPrefix(node_t *node, void (*applyf)(void *));
+
+void TreeDumpAux(node_t *node, FILE *file);
 
 int TreeDump_(Tree *tree, const char *reason, callInfo info);
 

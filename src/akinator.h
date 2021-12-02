@@ -20,6 +20,8 @@ enum AkinatorMode : int {
 
 const uint16_t NUM_MODES = 2;
 
+int AkinatorPlay(Tree *tree);
+
 uint16_t AkinatorModeSelect();
 
 int AkinatorGuess(Tree *tree);

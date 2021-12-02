@@ -1,7 +1,5 @@
-#include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <stdio.h>
 #include <assert.h>
 
 #include "tree.h"
@@ -70,6 +68,20 @@ void TreeDtor(Tree *tree) {
     tree->size = SIZE_POISON;
 }
 
+void TreeDumpAux(node_t *node, FILE *file) {
+    if (node->left) {
+        fprintf(file, "    \"%s\" -> \"%s\"[color=\"green\", label=\"yes\"];\n",
+                node->data, node->left->data);
+        TreeDumpAux(node->left, file);
+    }
+
+    if (node->right) {
+        fprintf(file, "    \"%s\" -> \"%s\"[color=\"red\", label=\"no\"];\n",
+                node->data, node->right->data);
+        TreeDumpAux(node->right, file);
+    }
+}
+
 int TreeDump_(Tree *tree, const char *reason, callInfo info) {
     assert(tree);
     assert(tree->root);
@@ -98,9 +110,18 @@ int TreeDump_(Tree *tree, const char *reason, callInfo info) {
 							 tree->ctorCallFile, tree->ctorCallLine, reason);
 
     fprintf(dotFile, "data [shape=record, label=\"{ root | size }"
-            "| { %p | %zu }\"];", (void *)tree->root, tree->size);
+            "| { %p | %zu }\"];\n\n", (void *)tree->root, tree->size);
 
-    fprintf(dotFile, "}\n");
+    fprintf(dotFile, "    node [fontname=\"Arial\"];\n");
+
+    if (!tree->root->left && !tree->root->right) {
+        fprintf(dotFile, "    \"%s\"", tree->root->data); 
+
+    } else {
+        TreeDumpAux(tree->root, dotFile);
+    }
+
+    fprintf(dotFile, "\n}\n");
 
     if (fclose(dotFile) == -1) {
         PRINT_ERROR("Error closing dot file : %s\n", strerror(errno));
