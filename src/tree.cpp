@@ -31,6 +31,8 @@ int TreeCtor_(Tree *tree, const char *val, callInfo info) {
     assert(tree->root == nullptr);
     assert(tree->size == 0);
 
+    system("rm -rf dumps");
+
     tree->root = CreateNode(val);
 
     if (!tree->root) {
@@ -69,13 +71,25 @@ void TreeDtor(Tree *tree) {
 }
 
 void TreeDumpAux(node_t *node, FILE *file) {
+    fprintf(file, "    \"%s\" [label=\" { %s | {  %p | %p }} \"];",
+            node->data, node->data,
+            node->left, node->right); 
+
     if (node->left) {
+        fprintf(file, "    \"%s\" [label=\" { %s | {  %p | %p }} \"];",
+                node->left->data, node->left->data,
+                node->left->left, node->left->right); 
+
         fprintf(file, "    \"%s\" -> \"%s\"[color=\"green\", label=\"yes\"];\n",
                 node->data, node->left->data);
         TreeDumpAux(node->left, file);
     }
 
     if (node->right) {
+        fprintf(file, "    \"%s\" [label=\" { %s | {  %p | %p }} \"];",
+                node->right->data, node->right->data,
+                node->right->left, node->right->right); 
+
         fprintf(file, "    \"%s\" -> \"%s\"[color=\"red\", label=\"no\"];\n",
                 node->data, node->right->data);
         TreeDumpAux(node->right, file);
@@ -112,10 +126,12 @@ int TreeDump_(Tree *tree, const char *reason, callInfo info) {
     fprintf(dotFile, "data [shape=record, label=\"{ root | size }"
             "| { %p | %zu }\"];\n\n", (void *)tree->root, tree->size);
 
-    fprintf(dotFile, "    node [fontname=\"Arial\"];\n");
+    fprintf(dotFile, "    node [shape=record, fontname=\"Arial\"];\n");
 
     if (!tree->root->left && !tree->root->right) {
-        fprintf(dotFile, "    \"%s\"", tree->root->data); 
+        fprintf(dotFile, "    \"%s\" [label=\" { %s | {  %p | %p }} \"];",
+                tree->root->data, tree->root->data,
+                tree->root->left, tree->root->right); 
 
     } else {
         TreeDumpAux(tree->root, dotFile);
@@ -132,6 +148,8 @@ int TreeDump_(Tree *tree, const char *reason, callInfo info) {
     sprintf(command, "dot -Tjpg %s -o dumps/dump%zu.jpg", dotFileName, tree->dumpNum);
     system(command);
     sprintf(command, "rm %s\n", dotFileName);
+    system(command);
+    sprintf(command, "fim dumps/dump%zu.jpg", tree->dumpNum);
     system(command);
 
     tree->dumpNum++;

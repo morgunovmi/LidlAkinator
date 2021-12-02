@@ -169,7 +169,7 @@ int AkinatorGuess(Tree *tree) {
             return INV_ANSWER;
         } 
     }
-    printf("Did you guess %s?\n",  cur->data);
+    printf("Did you guess %s? (y or n)\n",  cur->data);
 
     int answer = GetAnswer();
     if (answer == 1) {
