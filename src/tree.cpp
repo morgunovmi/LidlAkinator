@@ -1,10 +1,61 @@
 #include <string.h>
 #include <errno.h>
 #include <assert.h>
+#include <stdint.h>
 
 #include "tree.h"
 
-node_t *CreateNode(const char *val) {
+node_t *ReadSubtree(text_t *text, size_t *curLine) {
+    if (strcmp(text->lines[(*curLine)++].ptr, "{") != 0) {
+        return nullptr;
+    }
+
+    node_t *node = CreateNode(text->lines[(*curLine)++].ptr, false);
+
+    if (strcmp(text->lines[*curLine].ptr, "{") == 0) {
+        node->left = ReadSubtree(text, curLine);
+    }
+
+    if (strcmp(text->lines[*curLine].ptr, "{") == 0) {
+        node->right = ReadSubtree(text, curLine);
+    }
+    
+    if (strcmp(text->lines[(*curLine)++].ptr, "}") != 0) {
+        return nullptr;
+    }
+
+    return node;
+}
+
+Tree *ReadTreeFromText(text_t *text) {
+    assert(text);
+
+    Tree *tree = (Tree *)calloc(1, sizeof(Tree));
+    if (!tree) {
+        PRINT_ERROR("Error allocating memory for the tree : %s\n", strerror(errno));
+        return nullptr;
+    }
+
+    size_t curLine = 0;
+    if (strcmp(text->lines[curLine++].ptr, "{") != 0) {
+        PRINT_ERROR("Expected opening \"{\"");
+        return nullptr;
+    }
+    
+    TreeCtor(tree, text->lines[curLine++].ptr, false); 
+
+    tree->root->left = ReadSubtree(text, &curLine);
+    tree->root->right = ReadSubtree(text, &curLine);
+
+    if (strcmp(text->lines[curLine++].ptr, "}") != 0) {
+        PRINT_ERROR("Expected terminating \"}\"");
+        return nullptr;
+    }
+
+    return tree;
+}
+
+node_t *CreateNode(const char *val, bool isDynamic) {
     assert(val);
 
     node_t *node = (node_t *)calloc(1, sizeof(*node));
@@ -14,7 +65,11 @@ node_t *CreateNode(const char *val) {
         return nullptr;
     }
 
-    node->data = strdup(val); 
+    if (!isDynamic) {
+        node->data = (char *)val;
+    } else {
+        node->data = strdup(val); 
+    }
 
     if (!node->data) {
         PRINT_ERROR("Error allocating memory for string : %s\n", strerror(errno));
@@ -23,17 +78,18 @@ node_t *CreateNode(const char *val) {
 
     node->left = nullptr;
     node->right = nullptr;
+    node->isDynamic = isDynamic;
     return node;
 }
 
-int TreeCtor_(Tree *tree, const char *val, callInfo info) {
+int TreeCtor_(Tree *tree, const char *val, bool isDynamic, callInfo info) {
     assert(tree);
     assert(tree->root == nullptr);
     assert(tree->size == 0);
 
     system("rm -rf dumps");
 
-    tree->root = CreateNode(val);
+    tree->root = CreateNode(val, isDynamic);
 
     if (!tree->root) {
         return ERR_NOMEM;
@@ -55,7 +111,9 @@ void FreeSubtree(node_t *node) {
         return;
     }
 
-    free(node->data);
+    if (node->isDynamic) {
+        free(node->data);
+    }
     FreeSubtree(node->left);
     FreeSubtree(node->right);
     free(node);

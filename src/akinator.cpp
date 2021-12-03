@@ -137,11 +137,16 @@ int AkinatorAddItem(node_t *node) {
             ;
         break;
     }
-    node->left = CreateNode(itemToAdd);
-    node->right = CreateNode(node->data);
 
-    free(node->data);
+    node->left = CreateNode(itemToAdd, true);
+
+    node->right = CreateNode(node->data, node->isDynamic);
+
+    if (node->isDynamic) {
+        free(node->data);
+    }
     node->data = strdup(diffTrait);
+    node->isDynamic = true;
 
     return 0;
 }

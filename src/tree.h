@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include "../include/text.h"
+
 #ifndef __FUNCTION_NAME__
     #ifdef WIN32   //WINDOWS
         #define __FUNCTION_NAME__   __FUNCTION__  
@@ -23,6 +25,7 @@ const size_t SIZE_POISON = SIZE_MAX;
 
 struct node_t {
     char *data;
+    bool isDynamic;
     node_t *left;
     node_t *right;
 };
@@ -51,9 +54,11 @@ enum TreeError : int {
     ERR_FILE_CLS = 3,
 };
 
-node_t *CreateNode(const char *val);
+Tree *ReadTreeFromText(text_t *text);
 
-int TreeCtor_(Tree *tree, const char *val, callInfo info);
+node_t *CreateNode(const char *val, bool isDynamic);
+
+int TreeCtor_(Tree *tree, const char *val, bool isDynamic, callInfo info);
 
 void FreeSubtree(node_t *node);
 
@@ -65,13 +70,13 @@ void TreeDumpAux(node_t *node, FILE *file);
 
 int TreeDump_(Tree *tree, const char *reason, callInfo info);
 
-#define TreeCtor(tree, val)    \
+#define TreeCtor(tree, val, isDynamic)    \
 do {                                           \
     callInfo inf = {};                         \
     inf.funcName = __FUNCTION_NAME__;          \
     inf.file = __FILE__;                       \
     inf.line = __LINE__;                       \
-    TreeCtor_(tree, val, inf); \
+    TreeCtor_(tree, val, isDynamic, inf); \
 } while (0)
 
 #define TreeDump(tree, reason)      \
