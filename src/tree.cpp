@@ -6,6 +6,9 @@
 #include "tree.h"
 
 node_t *ReadSubtree(text_t *text, size_t *curLine) {
+    assert(text);
+    assert(curLine);
+
     if (strcmp(text->lines[(*curLine)++].ptr, "{") != 0) {
         return nullptr;
     }

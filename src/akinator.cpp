@@ -6,6 +6,8 @@
 #include "akinator.h"
 
 int AkinatorPlay(Tree *tree) {
+    assert(tree);
+
     while (true) {
         uint16_t mode = AkinatorModeSelect();
 
