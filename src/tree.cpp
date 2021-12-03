@@ -126,6 +126,7 @@ void TreeDtor(Tree *tree) {
     FreeSubtree(tree->root);
     tree->root = (node_t *)13;
     tree->size = SIZE_POISON;
+    free(tree);
 }
 
 void TreeDumpAux(node_t *node, FILE *file) {

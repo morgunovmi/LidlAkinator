@@ -18,7 +18,7 @@
 
 #define PRINT_ERROR(...) {                                                                                  \
     fprintf(stderr, __VA_ARGS__);                                                                           \
-    fprintf(stderr, "file \"%s\", line %d, function \"%s()\"\n", __FILE__, __LINE__, __FUNCTION_NAME__);  \
+    fprintf(stderr, "file \"%s\", line %d, function \"%s()\"\n", __FILE__, __LINE__, __FUNCTION_NAME__);    \
 }                                                                                                           \
 
 const size_t SIZE_POISON = SIZE_MAX;
@@ -53,6 +53,8 @@ enum TreeError : int {
     ERR_DOT_FILE_OPN = 2,
     ERR_FILE_CLS = 3,
 };
+
+node_t *ReadSubtree(text_t *text, size_t *curLine);
 
 Tree *ReadTreeFromText(text_t *text);
 
