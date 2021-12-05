@@ -4,6 +4,7 @@
 #include <errno.h>
 
 #include "akinator.h"
+#include "../include/stack.h"
 
 int AkinatorPlay(Tree *tree) {
     assert(tree);
@@ -24,6 +25,10 @@ int AkinatorPlay(Tree *tree) {
 
             case MODE_DUMP:
                 TreeDump(tree, "mode_dump");
+                break;
+
+            case MODE_DEFINE:
+                AkinatorDefine(tree);
                 break;
 
             default:
@@ -64,8 +69,9 @@ uint16_t AkinatorModeSelect() {
 
     printf("Please choose the mode\n");
     while (true) {
-        printf("1: Guess the object\n");
-        printf("2: Dump the database\n");
+        for (size_t i = 0; i < NUM_MODES; i++) {
+            printf("%zu: %s\n", i + 1, MODE_DESCRS[i]);
+        }
 
         if (scanf("%hu", &mode) != 1 ||
             mode == 0 || mode > NUM_MODES) {
@@ -180,7 +186,7 @@ int AkinatorGuess(Tree *tree) {
 
     int answer = GetAnswer();
     if (answer == 1) {
-        printf("EZ game you fucking meat sack loser!\nResistance is futile!\n"); 
+        printf("EZ game you fucking meat sack loser!\nResistance is futile!\n\n"); 
 
     } else if (answer == 0) {
         if (AkinatorAddItem(cur) != 0) {
@@ -193,6 +199,54 @@ int AkinatorGuess(Tree *tree) {
         PRINT_ERROR("Got an invalid answer\n");
         return INV_ANSWER;
     }
+
+    return 0;
+}
+
+int AkinatorDefine(Tree *tree) {
+    assert(tree);
+
+    printf("Please give me an object to define\n");
+
+    char objectToDefine[256] = "";
+    while (true) { if (scanf("%[^\n]s", objectToDefine) != 1) { 
+            printf("Please enter a valid object\n");
+            continue;
+        }
+        while (getc(stdin) != '\n')
+            ;
+        break;
+    }
+
+    Stack propertyStack = {};
+
+    StackCtor(&propertyStack, sizeof(node_t), 10);
+    if (TreeFind(tree->root, objectToDefine, &propertyStack) != 0) {
+        printf("There is no such element in the database\n");
+        StackDtor(&propertyStack);
+        return 1;
+    }
+
+    printf("%s is ", objectToDefine);
+    for (size_t i = 0; i < propertyStack.size - 1; i++) {
+        node_t cur = StackAccess_(&propertyStack, i);
+
+        if (strcmp(StackAccess_(&propertyStack, i + 1).data,
+                    cur.right->data) == 0) {
+            printf("not "); 
+        }
+
+        printf("%s, ", cur.data);
+    }
+
+    node_t last = StackAccess_(&propertyStack, propertyStack.size - 1);
+    if (strcmp(last.data, objectToDefine) == 0) {
+        printf("not "); 
+    }
+
+    printf("%s.\n\n", last.data);
+
+    StackDtor(&propertyStack);
 
     return 0;
 }

@@ -85,7 +85,7 @@ node_t *CreateNode(const char *val, bool isDynamic) {
     return node;
 }
 
-int TreeCtor_(Tree *tree, const char *val, bool isDynamic, callInfo info) {
+int TreeCtor_(Tree *tree, const char *val, bool isDynamic, treeCallInfo info) {
     assert(tree);
     assert(tree->root == nullptr);
     assert(tree->size == 0);
@@ -158,7 +158,7 @@ void TreeDumpAux(node_t *node, FILE *file) {
     }
 }
 
-int TreeDump_(Tree *tree, const char *reason, callInfo info) {
+int TreeDump_(Tree *tree, const char *reason, treeCallInfo info) {
     assert(tree);
     assert(tree->root);
 
@@ -217,4 +217,38 @@ int TreeDump_(Tree *tree, const char *reason, callInfo info) {
     tree->dumpNum++;
 
     return 0;
+}
+
+int TreeFind(node_t *node, const char *value, Stack *stack) {
+    if (!node->left && !node->right) {
+        if (strcmp(node->data, value) == 0) {
+            return 0;
+
+        } else {
+            return 1;
+        } 
+    }
+
+    StackPush(stack, node);
+
+    int res = 0;
+
+    if (TreeFind(node->left, value, stack) == 0) {
+        return 0;
+    } else {
+        res = 1;
+    }
+
+    if (TreeFind(node->right, value, stack) == 0) {
+        return 0;
+    } else {
+        res = 1;
+    }
+
+    if (res == 1) {
+        node_t temp = {};
+        StackPop(stack, &temp); 
+    }
+
+    return res;
 }

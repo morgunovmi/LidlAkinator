@@ -16,15 +16,24 @@ enum AkinatorError : int {
 enum AkinatorMode : int {
     MODE_GUESS = 1,
     MODE_DUMP = 2,
+    MODE_DEFINE = 3,
 };
 
-const uint16_t NUM_MODES = 2;
+static const char *MODE_DESCRS[] = {
+    "Guess the object",
+    "Dump the database",
+    "Define the object"
+};
+
+const size_t NUM_MODES = sizeof(MODE_DESCRS) / sizeof(*MODE_DESCRS);
 
 int AkinatorPlay(Tree *tree);
 
 uint16_t AkinatorModeSelect();
 
 int AkinatorGuess(Tree *tree);
+
+int AkinatorDefine(Tree *tree);
 
 int AkinatorAddItem(node_t *node);
 

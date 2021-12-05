@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include "../include/stack.h"
 #include "../include/text.h"
 
 #ifndef __FUNCTION_NAME__
@@ -23,13 +24,6 @@
 
 const size_t SIZE_POISON = SIZE_MAX;
 
-struct node_t {
-    char *data;
-    bool isDynamic;
-    node_t *left;
-    node_t *right;
-};
-
 struct Tree {
     node_t *root;
     size_t size;
@@ -42,7 +36,7 @@ struct Tree {
 };
 
 //! Encapsulates info about function call for debug
-struct callInfo {
+struct treeCallInfo {
     const char *funcName; /**< Name of the calling function */
     const char *file; /**< File where the function call happened */
     int line; /**< Line of the function call in the file */
@@ -60,7 +54,7 @@ Tree *ReadTreeFromText(text_t *text);
 
 node_t *CreateNode(const char *val, bool isDynamic);
 
-int TreeCtor_(Tree *tree, const char *val, bool isDynamic, callInfo info);
+int TreeCtor_(Tree *tree, const char *val, bool isDynamic, treeCallInfo info);
 
 void FreeSubtree(node_t *node);
 
@@ -70,11 +64,13 @@ void TreeApplyPrefix(node_t *node, void (*applyf)(void *));
 
 void TreeDumpAux(node_t *node, FILE *file);
 
-int TreeDump_(Tree *tree, const char *reason, callInfo info);
+int TreeDump_(Tree *tree, const char *reason, treeCallInfo info);
+
+int TreeFind(node_t *node, const char *value, Stack *stack);
 
 #define TreeCtor(tree, val, isDynamic)    \
 do {                                           \
-    callInfo inf = {};                         \
+    treeCallInfo inf = {};                         \
     inf.funcName = __FUNCTION_NAME__;          \
     inf.file = __FILE__;                       \
     inf.line = __LINE__;                       \
@@ -83,7 +79,7 @@ do {                                           \
 
 #define TreeDump(tree, reason)      \
 do {                                           \
-    callInfo inf = {};                         \
+    treeCallInfo inf = {};                         \
     inf.funcName = __FUNCTION_NAME__;          \
     inf.file = __FILE__;                       \
     inf.line = __LINE__;                       \

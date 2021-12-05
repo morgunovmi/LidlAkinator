@@ -28,7 +28,7 @@ OBJS    = $(patsubst $(SRC)/%.cpp, $(OBJ)/%.o, $(SRCS))
 all:	$(BIN)
 
 $(BIN):	$(HDRS) $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -l:onegin.a -o $(BIN)
+	$(CC) $(CFLAGS) $(OBJS) -l:onegin.a -l:stack.a -o $(BIN)
 
 $(OBJ)/%.o:	$(SRC)/%.cpp
 	mkdir -p $(OBJ)

@@ -1,4 +1,5 @@
 akirator
 obj/
+*.o
 db/
 dumps/
