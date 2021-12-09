@@ -9,7 +9,10 @@ node_t *ReadSubtree(text_t *text, size_t *curLine) {
     assert(text);
     assert(curLine);
 
-    if (strcmp(text->lines[(*curLine)++].ptr, "{") != 0) {
+    if (*curLine + 1 >= text->numLines) {
+        return nullptr;
+
+    } else if (strcmp(text->lines[(*curLine)++].ptr, "{") != 0) {
         return nullptr;
     }
 
@@ -23,7 +26,10 @@ node_t *ReadSubtree(text_t *text, size_t *curLine) {
         node->right = ReadSubtree(text, curLine);
     }
     
-    if (strcmp(text->lines[(*curLine)++].ptr, "}") != 0) {
+    if (*curLine + 1 >= text->numLines) {
+        return nullptr;
+
+    } else if (strcmp(text->lines[(*curLine)++].ptr, "}") != 0) {
         return nullptr;
     }
 
@@ -44,6 +50,7 @@ Tree *ReadTreeFromText(text_t *text) {
         PRINT_ERROR("Expected opening \"{\"");
         return nullptr;
     }
+    printf("err\n");
     
     TreeCtor(tree, text->lines[curLine++].ptr, false); 
 
@@ -126,9 +133,12 @@ void TreeDtor(Tree *tree) {
     assert(tree);
     assert(tree->root);
 
+    bool isDynamic = tree->root->isDynamic;
+
     FreeSubtree(tree->root);
     tree->root = (node_t *)13;
     tree->size = SIZE_POISON;
+
     free(tree);
 }
 

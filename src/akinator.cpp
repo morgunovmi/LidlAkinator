@@ -2,9 +2,35 @@
 #include <ctype.h>
 #include <string.h>
 #include <errno.h>
+#include <stdarg.h>
 
 #include "akinator.h"
 #include "../include/stack.h"
+
+extern bool ifSay;
+
+int AkinatorSay(const char *format ...) {
+    va_list arg_ptr;
+    va_start(arg_ptr, format);
+
+    char strToSay[MAX_STR_LEN] = "";
+    if (vsprintf(strToSay, format, arg_ptr) < 0) {
+        return ERR_SPRINTF;
+    }
+    printf("%s", strToSay);
+
+    if (ifSay) {
+        char sayCommand[MAX_STR_LEN] = "";
+        if (sprintf(sayCommand, "say \"%s\"", strToSay) < 0) {
+            return ERR_SPRINTF;
+        }
+        system(sayCommand);
+
+        va_end(arg_ptr);
+    }
+
+    return 0;
+}
 
 int AkinatorPlay(Tree *tree) {
     assert(tree);
@@ -37,7 +63,7 @@ int AkinatorPlay(Tree *tree) {
                 return 1;
         }
 
-        printf("Do you wish to play another round? (y or n)\n");
+        AkinatorSay("Do you wish to play another round? (y or n)\n");
         int ans = GetAnswer();
         if (ans == -1) { 
             PRINT_ERROR("Invalid answer returned\n");
@@ -45,7 +71,7 @@ int AkinatorPlay(Tree *tree) {
             return 1;
 
         } else if (ans == 0) {
-            printf("Do you wish to save the current database? (y or n)\n");
+            AkinatorSay("Do you wish to save the current database? (y or n)\n");
             ans = GetAnswer();
 
             if (ans == 1) {
@@ -67,15 +93,15 @@ int AkinatorPlay(Tree *tree) {
 uint16_t AkinatorModeSelect() {
     uint16_t mode = 0;
 
-    printf("Please choose the mode\n");
+    AkinatorSay("Please choose the mode\n");
     while (true) {
         for (size_t i = 0; i < NUM_MODES; i++) {
-            printf("%zu: %s\n", i + 1, MODE_DESCRS[i]);
+            AkinatorSay("%zu: %s\n", i + 1, MODE_DESCRS[i]);
         }
 
         if (scanf("%hu", &mode) != 1 ||
             mode == 0 || mode > NUM_MODES) {
-            printf("Please enter a valid mode\n");
+            AkinatorSay("Please enter a valid mode\n");
             while (getc(stdin) != '\n')
                 ;
             continue;
@@ -104,7 +130,7 @@ int GetAnswer() {
 
         while (getc(stdin) != '\n')
             ;
-        printf("Please type y or n!\n");
+        AkinatorSay("Please type y or n!\n");
     }
 
     switch (scanned) {
@@ -120,12 +146,12 @@ int GetAnswer() {
 int AkinatorAddItem(node_t *node) {
     assert(node);
 
-    printf("Can you tell me what you guessed?\n");
+    AkinatorSay("Can you tell me what you guessed?\n");
 
     char itemToAdd[256] = "";
     while (true) {
         if (scanf("%[^\n]s", itemToAdd) != 1) {
-            printf("Please enter a valid name\n");
+            AkinatorSay("Please enter a valid name\n");
             continue;
         }
         while (getc(stdin) != '\n')
@@ -133,12 +159,12 @@ int AkinatorAddItem(node_t *node) {
         break;
     }
 
-    printf("Now tell me, what's %s that %s is not?\n", itemToAdd, node->data);
+    AkinatorSay("Now tell me, what's %s that %s is not?\n", itemToAdd, node->data);
 
     char diffTrait[256] = "";
     while (true) {
         if (scanf("%[^\n]s", diffTrait) != 1) {
-            printf("Please enter a valid trait\n");
+            AkinatorSay("Please enter a valid trait\n");
             continue;
         }
         while (getc(stdin) != '\n')
@@ -163,12 +189,12 @@ int AkinatorGuess(Tree *tree) {
     assert(tree);
     assert(tree->root);
 
-    printf("Welcome to my world, meat sack! \nI'm going to effortlessly "
-            "guess what you have in mind now! Check me out!\n\n");
+    AkinatorSay("Welcome to my world, meat sack! \nI'm going to effortlessly "
+                "guess what you have in mind now! Check me out!\n\n");
 
     node_t *cur = tree->root; 
     while (!(cur->left == nullptr && cur->right == nullptr)) {
-        printf("Is your object %s? (y or n)\n", cur->data);
+        AkinatorSay("Is your object %s? (y or n)\n", cur->data);
 
         int answer = GetAnswer();
         if (answer == 1) {
@@ -182,11 +208,11 @@ int AkinatorGuess(Tree *tree) {
             return INV_ANSWER;
         } 
     }
-    printf("Did you guess %s? (y or n)\n",  cur->data);
+    AkinatorSay("Did you guess %s? (y or n)\n",  cur->data);
 
     int answer = GetAnswer();
     if (answer == 1) {
-        printf("EZ game you fucking meat sack loser!\nResistance is futile!\n\n"); 
+        AkinatorSay("EZ game you fucking meat sack loser!\nResistance is futile!\n\n"); 
 
     } else if (answer == 0) {
         if (AkinatorAddItem(cur) != 0) {
@@ -206,11 +232,11 @@ int AkinatorGuess(Tree *tree) {
 int AkinatorDefine(Tree *tree) {
     assert(tree);
 
-    printf("Please give me an object to define\n");
+    AkinatorSay("Please give me an object to define\n");
 
     char objectToDefine[256] = "";
     while (true) { if (scanf("%[^\n]s", objectToDefine) != 1) { 
-            printf("Please enter a valid object\n");
+            AkinatorSay("Please enter a valid object\n");
             continue;
         }
         while (getc(stdin) != '\n')
@@ -222,29 +248,29 @@ int AkinatorDefine(Tree *tree) {
 
     StackCtor(&propertyStack, sizeof(node_t), 10);
     if (TreeFind(tree->root, objectToDefine, &propertyStack) != 0) {
-        printf("There is no such element in the database\n");
+        AkinatorSay("There is no such element in the database\n");
         StackDtor(&propertyStack);
         return 1;
     }
 
-    printf("%s is ", objectToDefine);
+    AkinatorSay("%s is ", objectToDefine);
     for (size_t i = 0; i < propertyStack.size - 1; i++) {
         node_t cur = StackAccess_(&propertyStack, i);
 
         if (strcmp(StackAccess_(&propertyStack, i + 1).data,
                     cur.right->data) == 0) {
-            printf("not "); 
+            AkinatorSay("not "); 
         }
 
-        printf("%s, ", cur.data);
+        AkinatorSay("%s, ", cur.data);
     }
 
     node_t last = StackAccess_(&propertyStack, propertyStack.size - 1);
     if (strcmp(last.data, objectToDefine) == 0) {
-        printf("not "); 
+        AkinatorSay("not "); 
     }
 
-    printf("%s.\n\n", last.data);
+    AkinatorSay("%s.\n\n", last.data);
 
     StackDtor(&propertyStack);
 
@@ -273,6 +299,8 @@ int SaveSubtree(FILE *file, node_t *node) {
 int AkinatorSaveDb(Tree *tree) {
     assert(tree);
     assert(tree->root);
+
+    system("mkdir -p db");
 
     const char *dbname = "db/db.txt";
     FILE *db = fopen(dbname, "w");

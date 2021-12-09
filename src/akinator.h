@@ -11,6 +11,7 @@ enum AkinatorError : int {
     ERR_OPN_FILE = 3,
     ERR_CLS_FILE = 4,
     SAVE_ERR = 5,
+    ERR_SPRINTF = 6,
 };
 
 enum AkinatorMode : int {
@@ -26,6 +27,10 @@ static const char *MODE_DESCRS[] = {
 };
 
 const size_t NUM_MODES = sizeof(MODE_DESCRS) / sizeof(*MODE_DESCRS);
+
+const size_t MAX_STR_LEN = 1024;
+
+int AkinatorSay(const char *format ...);
 
 int AkinatorPlay(Tree *tree);
 
