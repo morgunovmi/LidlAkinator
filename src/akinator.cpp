@@ -232,6 +232,12 @@ int AkinatorGuess(Tree *tree) {
 int AkinatorDefine(Tree *tree) {
     assert(tree);
 
+    if (!tree->root->left && !tree->root->right) {
+        AkinatorSay("There is nothing but %s in the database now!\n"
+                    "Try adding some objects!\n", tree->root->data);
+        return 1;
+    }
+
     AkinatorSay("Please give me an object to define\n");
 
     char objectToDefine[256] = "";
