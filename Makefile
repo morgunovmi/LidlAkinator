@@ -17,7 +17,7 @@ CFLAGS += -fsized-deallocation -fstrict-overflow
 CFLAGS += -flto-odr-type-merging -fno-omit-frame-pointer
 CFLAGS += -fsanitize=address
 CFLAGS += -Llib
-BIN		= akirator 
+BIN		= akinator 
 RM      = rm -rf
 SRC		= src
 OBJ		= obj

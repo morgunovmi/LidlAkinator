@@ -50,7 +50,6 @@ Tree *ReadTreeFromText(text_t *text) {
         PRINT_ERROR("Expected opening \"{\"");
         return nullptr;
     }
-    printf("err\n");
     
     TreeCtor(tree, text->lines[curLine++].ptr, false); 
 

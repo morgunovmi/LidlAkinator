@@ -1,5 +1,7 @@
 # LidlAkinator 
 
+![snap](https://github.com/morgunovmi/LidlAkinator/blob/master/resources/snap.png)
+
 ## Introduction
 
 This command line program allows you to play around with your personal Akinator (Lidl version).
@@ -38,13 +40,11 @@ This project was built on an Ubuntu-based Linux distro, but any Unix-based syste
 will probably do
 
 To run this program you will also need __make__, __gnustep-gui-runtime__(for text-to-speech
-generation) and __dot__ (for graphical dumps with graphviz).
+generation), __fim__ (for image output) and __dot__ (for graphical dumps with graphviz).
 
 You can install them with:
 ```
-sudo apt install make
-sudo apt install gnustep-gui-runtime
-sudo apt install dot
+sudo apt install make fim gnustep-gui-runtime dot
 ```
 (Or alternative commands depending on your distro's package manager)
 
@@ -70,3 +70,4 @@ specify a custom database by entering its path:
 ```
 (Runs with an empty database by default)
 
+### GLHF! @me with errors
