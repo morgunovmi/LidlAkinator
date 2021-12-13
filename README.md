@@ -34,6 +34,11 @@ and display it to you.
 In this mode the allmighty Akinator will define an object you give it 
 (if it exists in the database).
 
+4. Compare two objects
+
+In this mode your machine overlord will compare two objects you give it
+(if they are in the db)
+
 ## Prerequisites
 
 This project was built on an Ubuntu-based Linux distro, but any Unix-based system
