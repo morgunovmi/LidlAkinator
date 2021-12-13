@@ -18,27 +18,38 @@ enum AkinatorMode : int {
     MODE_GUESS = 1,
     MODE_DUMP = 2,
     MODE_DEFINE = 3,
+    MODE_COMPARE = 4
 };
 
 static const char *MODE_DESCRS[] = {
     "Guess the object",
     "Dump the database",
-    "Define the object"
+    "Define the object",
+    "Compare two objects"
 };
 
 const size_t NUM_MODES = sizeof(MODE_DESCRS) / sizeof(*MODE_DESCRS);
 
-const size_t MAX_STR_LEN = 1024;
+#define MAX_STR_LEN 1024
 
 int AkinatorSay(const char *format ...);
 
+void ClearStdin();
+
+int AkinatorScanLine(char *str);
+
 int AkinatorPlay(Tree *tree);
 
-uint16_t AkinatorModeSelect();
+int AkinatorModeSelect();
 
 int AkinatorGuess(Tree *tree);
 
+void AkinatorEnumerateTraits(const char *object, Stack *propertyStack,
+        size_t idx);
+
 int AkinatorDefine(Tree *tree);
+
+int AkinatorCompare(Tree *tree);
 
 int AkinatorAddItem(node_t *node);
 

@@ -7,7 +7,26 @@
 #include "akinator.h"
 #include "../include/stack.h"
 
-extern bool ifSay;
+bool ifSay = false;
+
+void ClearStdin() {
+    while (getc(stdin) != '\n')
+        ;
+}
+
+int AkinatorScanLine(char *str) {
+    while (true) {
+        if (scanf("%[^\n]s", str) != 1) { 
+            AkinatorSay("Please enter a valid line\n");
+            continue;
+        }
+
+        ClearStdin();
+        break;
+    }
+
+    return 0;
+}
 
 int AkinatorSay(const char *format ...) {
     va_list arg_ptr;
@@ -36,7 +55,7 @@ int AkinatorPlay(Tree *tree) {
     assert(tree);
 
     while (true) {
-        uint16_t mode = AkinatorModeSelect();
+        unsigned int mode = AkinatorModeSelect();
 
         if (mode == 0) {
             PRINT_ERROR("Invalid mode selected\n");
@@ -55,6 +74,10 @@ int AkinatorPlay(Tree *tree) {
 
             case MODE_DEFINE:
                 AkinatorDefine(tree);
+                break;
+
+            case MODE_COMPARE:
+                AkinatorCompare(tree);
                 break;
 
             default:
@@ -90,8 +113,8 @@ int AkinatorPlay(Tree *tree) {
     return 0;
 }
 
-uint16_t AkinatorModeSelect() {
-    uint16_t mode = 0;
+int AkinatorModeSelect() {
+    unsigned int mode = 0;
 
     AkinatorSay("Please choose the mode\n");
     while (true) {
@@ -99,16 +122,15 @@ uint16_t AkinatorModeSelect() {
             AkinatorSay("%zu: %s\n", i + 1, MODE_DESCRS[i]);
         }
 
-        if (scanf("%hu", &mode) != 1 ||
+        if (scanf("%u", &mode) != 1 ||
             mode == 0 || mode > NUM_MODES) {
             AkinatorSay("Please enter a valid mode\n");
-            while (getc(stdin) != '\n')
-                ;
+
+            ClearStdin();
             continue;
         }
 
-        while (getc(stdin) != '\n')
-            ;
+        ClearStdin();
         break;
     }
 
@@ -122,14 +144,12 @@ int GetAnswer() {
         scanned = tolower(scanned);
 
         if (scanned == 'y' || scanned == 'n') {
-            while (getc(stdin) != '\n')
-                ;
+            ClearStdin();
 
             break;
         }
 
-        while (getc(stdin) != '\n')
-            ;
+        ClearStdin();
         AkinatorSay("Please type y or n!\n");
     }
 
@@ -148,29 +168,13 @@ int AkinatorAddItem(node_t *node) {
 
     AkinatorSay("Can you tell me what you guessed?\n");
 
-    char itemToAdd[256] = "";
-    while (true) {
-        if (scanf("%[^\n]s", itemToAdd) != 1) {
-            AkinatorSay("Please enter a valid name\n");
-            continue;
-        }
-        while (getc(stdin) != '\n')
-            ;
-        break;
-    }
+    char itemToAdd[MAX_STR_LEN] = "";
+    AkinatorScanLine(itemToAdd);
 
     AkinatorSay("Now tell me, what's %s that %s is not?\n", itemToAdd, node->data);
 
-    char diffTrait[256] = "";
-    while (true) {
-        if (scanf("%[^\n]s", diffTrait) != 1) {
-            AkinatorSay("Please enter a valid trait\n");
-            continue;
-        }
-        while (getc(stdin) != '\n')
-            ;
-        break;
-    }
+    char diffTrait[MAX_STR_LEN] = "";
+    AkinatorScanLine(diffTrait);
 
     node->left = CreateNode(itemToAdd, true);
 
@@ -229,6 +233,26 @@ int AkinatorGuess(Tree *tree) {
     return 0;
 }
 
+void AkinatorEnumerateTraits(const char *object, Stack *propertyStack, size_t idx) {
+    for (; idx < propertyStack->size - 1; idx++) {
+        node_t cur = StackAccess_(propertyStack, idx);
+
+        if (strcmp(StackAccess_(propertyStack, idx + 1).data,
+                    cur.right->data) == 0) {
+            AkinatorSay("not "); 
+        }
+
+        AkinatorSay("%s, ", cur.data);
+    }
+
+    node_t last = StackAccess_(propertyStack, propertyStack->size - 1);
+    if (strcmp(last.right->data, object) == 0) {
+        AkinatorSay("not "); 
+    }
+
+    AkinatorSay("%s", last.data);
+}
+
 int AkinatorDefine(Tree *tree) {
     assert(tree);
 
@@ -240,15 +264,8 @@ int AkinatorDefine(Tree *tree) {
 
     AkinatorSay("Please give me an object to define\n");
 
-    char objectToDefine[256] = "";
-    while (true) { if (scanf("%[^\n]s", objectToDefine) != 1) { 
-            AkinatorSay("Please enter a valid object\n");
-            continue;
-        }
-        while (getc(stdin) != '\n')
-            ;
-        break;
-    }
+    char objectToDefine[MAX_STR_LEN] = "";
+    AkinatorScanLine(objectToDefine);
 
     Stack propertyStack = {};
 
@@ -260,25 +277,94 @@ int AkinatorDefine(Tree *tree) {
     }
 
     AkinatorSay("%s is ", objectToDefine);
-    for (size_t i = 0; i < propertyStack.size - 1; i++) {
-        node_t cur = StackAccess_(&propertyStack, i);
+    AkinatorEnumerateTraits(objectToDefine, &propertyStack, 0);
 
-        if (strcmp(StackAccess_(&propertyStack, i + 1).data,
-                    cur.right->data) == 0) {
-            AkinatorSay("not "); 
-        }
-
-        AkinatorSay("%s, ", cur.data);
-    }
-
-    node_t last = StackAccess_(&propertyStack, propertyStack.size - 1);
-    if (strcmp(last.data, objectToDefine) == 0) {
-        AkinatorSay("not "); 
-    }
-
-    AkinatorSay("%s.\n\n", last.data);
+    AkinatorSay(".\n\n");
 
     StackDtor(&propertyStack);
+
+    return 0;
+}
+
+int AkinatorCompare(Tree *tree) {
+    assert(tree);
+
+    if (!tree->root->left && !tree->root->right) {
+        AkinatorSay("There is nothing but %s in the database now!\n"
+                    "Try adding some objects!\n", tree->root->data);
+        return 1;
+    }
+
+    AkinatorSay("Please give two objects to compare\n");
+
+    char object1[MAX_STR_LEN] = "";
+    AkinatorScanLine(object1);
+
+    char object2[MAX_STR_LEN] = "";
+    AkinatorScanLine(object2);
+
+    Stack propertyStack1 = {};
+    StackCtor(&propertyStack1, sizeof(node_t), 10);
+
+    if (TreeFind(tree->root, object1, &propertyStack1) != 0) {
+        AkinatorSay("There is no %s in the database\n", object1);
+        StackDtor(&propertyStack1);
+        return 1;
+    }
+
+    Stack propertyStack2 = {};
+    StackCtor(&propertyStack2, sizeof(node_t), 10);
+
+    if (TreeFind(tree->root, object2, &propertyStack2) != 0) {
+        AkinatorSay("There is no %s in the database\n", object2);
+        StackDtor(&propertyStack2);
+        return 1;
+    }
+
+    size_t i = 0;
+    size_t j = 0;
+
+    node_t curFirst = StackAccess_(&propertyStack1, i);
+    node_t curSecond = StackAccess_(&propertyStack2, j);
+
+    node_t nextFirst = StackAccess_(&propertyStack1, i + 1);
+    node_t nextSecond = StackAccess_(&propertyStack2, j + 1);
+
+    if (strcmp(curFirst.data, curSecond.data) == 0 &&
+            strcmp(nextFirst.data, nextSecond.data) == 0) {
+
+        AkinatorSay("Both %s and %s are ", object1, object2);
+
+        while (strcmp(curFirst.data, curSecond.data) == 0 &&
+                strcmp(nextFirst.data, nextSecond.data) == 0) {
+
+            if (strcmp(nextFirst.data, curFirst.right->data) == 0) {
+                AkinatorSay("not "); 
+            }
+
+            AkinatorSay("%s, ", curFirst.data);
+
+            curFirst = StackAccess_(&propertyStack1, ++i);
+            curSecond = StackAccess_(&propertyStack2, ++j);
+
+            nextFirst = StackAccess_(&propertyStack1, i + 1);
+            nextSecond = StackAccess_(&propertyStack2, j + 1);
+        }
+
+    } else {
+        AkinatorSay("%s and %s have no similarities, ", object1, object2);
+    }
+
+    AkinatorSay("but %s is ", object1);
+    AkinatorEnumerateTraits(object1, &propertyStack1, i);
+
+    AkinatorSay(" , whereas %s is ", object2);
+    AkinatorEnumerateTraits(object2, &propertyStack2, j);
+
+    AkinatorSay(".\n\n");
+
+    StackDtor(&propertyStack1);
+    StackDtor(&propertyStack2);
 
     return 0;
 }

@@ -132,8 +132,6 @@ void TreeDtor(Tree *tree) {
     assert(tree);
     assert(tree->root);
 
-    bool isDynamic = tree->root->isDynamic;
-
     FreeSubtree(tree->root);
     tree->root = (node_t *)13;
     tree->size = SIZE_POISON;

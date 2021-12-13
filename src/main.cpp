@@ -5,7 +5,11 @@
 #include "akinator.h"
 #include "../include/text.h"
 
-bool ifSay = false;
+extern bool ifSay;
+//TODO ifSay other way
+//TODO different tree dump modes through cl flags
+//TODO --help
+//TODO Exit dump mode by key
 
 int main(int argc, char **argv) {
     Tree *tree = nullptr;
