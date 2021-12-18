@@ -1,11 +1,7 @@
-#include <stdio.h>
-#include <string.h>
-#include <argp.h>
-
 #include "tree.h"
 #include "akinator.h"
 #include "../include/text.h"
-#include "argParser.h"
+#include "argParse.h"
 
 extern bool ifSay;
 extern bool ifDebug;
@@ -13,15 +9,18 @@ extern bool ifDebug;
 //TODO ifSay other way
 
 int main(int argc, char **argv) {
-    char *dbFilePath = "";
+    struct arguments arguments = {};
 
-    parseArgs(argc, argv, &ifSay, &ifDebug, &dbFilePath);
+    argp_parse(&argp, argc, argv, 0, 0, &arguments);
+
+    ifSay = arguments.say;
+    ifDebug = arguments.debug;
 
     Tree *tree = nullptr;
     text_t text = {};
 
-    if (dbFilePath) {
-        if (getText(dbFilePath, &text) != 1) {
+    if (arguments.dbFilePath) {
+        if (getText(arguments.dbFilePath, &text) != 1) {
             return EXIT_FAILURE;
         }
 

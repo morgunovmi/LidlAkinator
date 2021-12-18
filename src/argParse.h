@@ -5,7 +5,6 @@
 #include <assert.h>
 
 const char *argp_program_bug_address = "<maxexmachina@gmail.com>";
-
 static char doc[] = "A lidl akinator for you command line.";
 
 static struct argp_option options[] = {
@@ -15,7 +14,7 @@ static struct argp_option options[] = {
 };
 
 struct arguments {
-    int say, debug;
+    bool say, debug;
     char *dbFilePath;
 };
 
@@ -26,10 +25,10 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
 
     switch (key) {
         case 's':
-            arguments->say = 1;
+            arguments->say = true; 
             break;
         case 'd':
-            arguments->debug = 1;
+            arguments->debug = true;
             break;
         case 'f':
             arguments->dbFilePath = arg;
@@ -44,26 +43,5 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
 }
 
 static struct argp argp = { options, parse_opt, 0, doc };
-
-static void parseArgs(int argc, char **argv, bool *say, bool *debug, char **dbPath) {
-    assert(argv);
-    assert(say);
-    assert(debug);
-    assert(dbPath);
-
-    struct arguments arguments = {};
-
-    argp_parse(&argp, argc, argv, 0, 0, &arguments);
-
-    if (arguments.say) {
-        *say = true;
-    }
-
-    if (arguments.debug) {
-        *debug = true;
-    }
-
-    *dbPath = arguments.dbFilePath;
-}
 
 #endif
