@@ -5,6 +5,8 @@
 
 #include "tree.h"
 
+bool ifDebug = false;
+
 node_t *ReadSubtree(text_t *text, size_t *curLine) {
     assert(text);
     assert(curLine);
@@ -140,14 +142,24 @@ void TreeDtor(Tree *tree) {
 }
 
 void TreeDumpAux(node_t *node, FILE *file) {
-    fprintf(file, "    \"%s\" [label=\" { %s | {  %p | %p }} \"];",
-            node->data, node->data,
-            node->left, node->right); 
+    if (ifDebug) {
+        fprintf(file, "    \"%s\" [label=\" { %s | {  %p | %p }} \"];",
+                node->data, node->data,
+                node->left, node->right); 
+    } else {
+        fprintf(file, "    \"%s\" [label=\"%s\"];",
+                node->data, node->data);
+    }
 
     if (node->left) {
-        fprintf(file, "    \"%s\" [label=\" { %s | {  %p | %p }} \"];",
-                node->left->data, node->left->data,
-                node->left->left, node->left->right); 
+        if (ifDebug) {
+            fprintf(file, "    \"%s\" [label=\" { %s | {  %p | %p }} \"];",
+                    node->data, node->data,
+                    node->left, node->right); 
+        } else {
+            fprintf(file, "    \"%s\" [label=\"%s\"];",
+                    node->data, node->data);
+        }
 
         fprintf(file, "    \"%s\" -> \"%s\"[color=\"green\", label=\"yes\"];\n",
                 node->data, node->left->data);
@@ -155,9 +167,14 @@ void TreeDumpAux(node_t *node, FILE *file) {
     }
 
     if (node->right) {
-        fprintf(file, "    \"%s\" [label=\" { %s | {  %p | %p }} \"];",
-                node->right->data, node->right->data,
-                node->right->left, node->right->right); 
+        if (ifDebug) {
+            fprintf(file, "    \"%s\" [label=\" { %s | {  %p | %p }} \"];",
+                    node->data, node->data,
+                    node->left, node->right); 
+        } else {
+            fprintf(file, "    \"%s\" [label=\"%s\"];",
+                    node->data, node->data);
+        }
 
         fprintf(file, "    \"%s\" -> \"%s\"[color=\"red\", label=\"no\"];\n",
                 node->data, node->right->data);
@@ -182,31 +199,41 @@ int TreeDump_(Tree *tree, const char *reason, treeCallInfo info) {
 
     fprintf(dotFile, "digraph tree{\n"
                     "{\nrankdir=HR;\n"
-                    "node[shape=plaintext];\nedge[color=white]\n"
-                     "\"Tree<%s>[%p]\n dumped from %s() at %s (%d)\n\n", 
-                             "const char *", (void *)tree, info.funcName,
-							 info.file, info.line);
+                    "node[shape=plaintext];\nedge[color=white]\n");
+    if (ifDebug) {
+        fprintf(dotFile, "\"Tree<%s>[%p]\n dumped from %s() at %s (%d)\n\n", 
+                "const char *", (void *)tree, info.funcName,
+                info.file, info.line);
 
-    fprintf(dotFile, "Constructed in %s() at %s (%d)\n"
-                             "Dump reason : %s\"\n}\n",
-                             tree->ctorCallFuncName,
-							 tree->ctorCallFile, tree->ctorCallLine, reason);
+        fprintf(dotFile, "Constructed in %s() at %s (%d)\n"
+                "Dump reason : %s\"\n}\n",
+                tree->ctorCallFuncName,
+                tree->ctorCallFile, tree->ctorCallLine, reason);
 
-    fprintf(dotFile, "data [shape=record, label=\"{ root | size }"
-            "| { %p | %zu }\"];\n\n", (void *)tree->root, tree->size);
+        fprintf(dotFile, "data [shape=record, label=\"{ root | size }"
+                "| { %p | %zu }\"];\n\n", (void *)tree->root, tree->size);
+    }
 
     fprintf(dotFile, "    node [shape=record, fontname=\"Arial\"];\n");
 
     if (!tree->root->left && !tree->root->right) {
-        fprintf(dotFile, "    \"%s\" [label=\" { %s | {  %p | %p }} \"];",
-                tree->root->data, tree->root->data,
-                tree->root->left, tree->root->right); 
+        if (ifDebug) {
+            fprintf(dotFile, "    \"%s\" [label=\" { %s | {  %p | %p }} \"];",
+                    tree->root->data, tree->root->data,
+                    tree->root->left, tree->root->right); 
+        } else {
+            fprintf(dotFile, "    \"%s\" [label=\"%s\"];",
+                    tree->root->data, tree->root->data);
+        }
 
     } else {
         TreeDumpAux(tree->root, dotFile);
     }
 
     fprintf(dotFile, "\n}\n");
+    if (!ifDebug) {
+        fprintf(dotFile, "}\n");
+    }
 
     if (fclose(dotFile) == -1) {
         PRINT_ERROR("Error closing dot file : %s\n", strerror(errno));
