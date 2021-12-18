@@ -66,12 +66,16 @@ You can then run it with
 ./akinator
 ```
 
-You can also run it with __--say__ flag if you want tts enabled, or you can
-specify a custom database by entering its path:
+You can also pass some options to the program:
 ```
-./akinator --say
-./akinator db/db.txt
-./akinator --say db/db.txt
+Usage: akinator [OPTION...]
+
+  -d, --debug                Makes tree dump debug friendly
+  -f, --file=FILE_PATH       Use a custom file for the database
+  -s, --say                  Use text to speech
+  -?, --help                 Give this help list
+      --usage                Give a short usage message
+
 ```
 (Runs with an empty database by default)
 
