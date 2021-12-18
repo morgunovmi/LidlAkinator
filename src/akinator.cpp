@@ -8,6 +8,7 @@
 #include "../include/stack.h"
 
 bool ifSay = false;
+bool ifDebug = false;
 
 void ClearStdin() {
     while (getc(stdin) != '\n')
