@@ -2,6 +2,7 @@
 #define ARGPARSER_H
 
 #include <argp.h> 
+#include <assert.h>
 
 const char *argp_program_bug_address = "<maxexmachina@gmail.com>";
 
@@ -19,6 +20,8 @@ struct arguments {
 };
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state) {
+    assert(state);
+
     struct arguments *arguments = (struct arguments *)state->input;
 
     switch (key) {
@@ -43,6 +46,11 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
 static struct argp argp = { options, parse_opt, 0, doc };
 
 static void parseArgs(int argc, char **argv, bool *say, bool *debug, char **dbPath) {
+    assert(argv);
+    assert(say);
+    assert(debug);
+    assert(dbPath);
+
     struct arguments arguments = {};
 
     argp_parse(&argp, argc, argv, 0, 0, &arguments);
